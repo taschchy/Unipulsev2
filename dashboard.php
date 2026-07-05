@@ -1,12 +1,20 @@
 <?php
 session_start();
 
-// If user is not logged in, return to login page
-if (!isset($_SESSION['user_id'])) {
+// Check if user is logged in
+if (empty($_SESSION['user_id'])) {
     header("Location: loginRelated/login.php");
-    exit();
+    exit;
 }
+
+$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$user_id = $_SESSION['user_id'];
+$stmt = $conn->prepare("SELECT full_name, major, year FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -693,8 +701,8 @@ echo substr($initials,0,2);
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-            transition: all 0.3s ease;" 
-            onmouseover="this.style.transform='translateY(-2px)'; this.style.backgroundPosition='right center'; this.style.boxShadow='0 6px 20px rgba(155, 81, 224, 0.5)';" 
+            transition: all 0.3s ease;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.backgroundPosition='right center'; this.style.boxShadow='0 6px 20px rgba(155, 81, 224, 0.5)';"
             onmouseout="this.style.transform='translateY(0)'; this.style.backgroundPosition='left center'; this.style.boxShadow='0 4px 15px rgba(79, 172, 254, 0.4)';"
             onmousedown="this.style.transform='translateY(1px)';"
             onmouseup="this.style.transform='translateY(-2px)';">
@@ -710,13 +718,13 @@ echo substr($initials,0,2);
   <div id="page-diet" class="page-view" style="display: none; padding: 24px;">
       <h2 style="font-size: 18px; font-weight:600; margin-bottom: 8px;">Dietary Insights & Log</h2>
       <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Fuel your body, fuel your studies.</p>
-      
+
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
-       
+
         <div class="widget-section" style="padding: 20px;">
           <div class="rc-title" style="margin-bottom: 16px;">✨ Log Food & Hydration</div>
           <form id="diet-logger-form" onsubmit="event.preventDefault(); addNewDietLog();" style="display: flex; flex-direction: column; gap: 12px;">
-            
+
             <div>
               <label style="font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">MEAL CATEGORY</label>
               <select id="diet-meal-type" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 13px; background: #fff;" required>
@@ -748,7 +756,7 @@ echo substr($initials,0,2);
             </button>
           </form>
         </div>
-        
+
         <div class="widget-section" style="padding: 20px;">
           <div class="rc-title" style="margin-bottom: 16px;">📜 Today's Nutri-History</div>
           <div id="diet-history-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; padding-right: 4px;">
@@ -766,7 +774,11 @@ echo substr($initials,0,2);
 // 1. DASHBOARD APPLICATION RUNTIME ENGINE STATE
 // ==========================================
 let appData = {
-  userInfo: { full_name: "Student Account", major: "Software Engineering", year: "3" },
+  userInfo: {
+    full_name: "<?= htmlspecialchars($user['full_name']) ?>",
+    major: "<?= htmlspecialchars($user['major']) ?>",
+    year: "<?= htmlspecialchars($user['year']) ?>"
+  },
   currentMood: "Okay",
   wellnessScore: 78,
   waterAmount: 1.5,
@@ -1159,7 +1171,7 @@ function renderExtendedViews() {function renderExtendedViews() {
 
     // Calculate total calories on the page
     const totalCals = appData.dietLogs.reduce((sum, item) => sum + Number(item.calories || 0), 0);
-    
+
     // Format cute date heading
     const options = { weekday: 'long', month: 'short', day: 'numeric' };
     const todayStr = new Date().toLocaleDateString('en-US', options);
@@ -1181,21 +1193,21 @@ function renderExtendedViews() {function renderExtendedViews() {
     // Inject cute paper note component
     dietHistoryList.innerHTML = `
       <div style="position: relative; background: #fffdf0; border: 1px solid #e2dcc5; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); padding: 24px 20px 20px; margin-top: 10px; font-family: 'Poppins', sans-serif;">
-        
+
         <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #fca5a5; color: white; font-size: 10px; padding: 2px 10px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">📌 DIARY</div>
-        
+
         <div style="font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
           <span>${todayStr}</span>
         </div>
-        
+
         <div style="border-bottom: 1px dashed #e2dcc5; margin-bottom: 16px; margin-top: 8px;"></div>
-        
+
         <div style="min-height: 80px;">
           ${logItemsHtml}
         </div>
-        
+
         <div style="border-bottom: 1px dashed #e2dcc5; margin-bottom: 12px; margin-top: 16px;"></div>
-        
+
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #1e293b; font-family: 'Fredoka', sans-serif;">
           <span>📊 Total Intake:</span>
           <span style="color: #d97706; font-size: 13px;">${totalCals} kcal</span>
@@ -1335,7 +1347,7 @@ function loadMoodHistory() {
         .then(response => response.json())
         .then(data => {
             let container = document.getElementById('mood-history-container');
-            
+
             if (!data || data.length === 0) {
                 container.innerHTML = "<p style='color: #80868b; font-family: sans-serif;'>No mood history available.</p>";
                 return;
@@ -1356,11 +1368,11 @@ function loadMoodHistory() {
             // 2. Isytihar pemula HTML (Container luar timeline melintang)
             let html = `
                 <div style="
-                    display: flex; 
-                    flex-direction: row; 
-                    font-family: 'Segoe UI', Roboto, sans-serif; 
-                    padding: 20px 10px; 
-                    overflow-x: auto; 
+                    display: flex;
+                    flex-direction: row;
+                    font-family: 'Segoe UI', Roboto, sans-serif;
+                    padding: 20px 10px;
+                    overflow-x: auto;
                     white-space: nowrap;
                     width: 100%;
                     gap: 0;
@@ -1370,12 +1382,12 @@ function loadMoodHistory() {
             // 3. Lakukan loop untuk setiap data mood (Dimasukkan semula)
             data.forEach(item => {
                 const colors = getMoodColor(item.mood);
-                
+
                 html += `
                     <div style="
-                        position: relative; 
-                        padding-top: 25px; 
-                        padding-right: 40px; 
+                        position: relative;
+                        padding-top: 25px;
+                        padding-right: 40px;
                         flex-shrink: 0;
                         display: flex;
                         flex-direction: column;
@@ -1393,29 +1405,29 @@ function loadMoodHistory() {
                         "></div>
 
                         <div style="
-                            position: absolute; 
-                            left: 0; 
-                            top: 5px; 
-                            width: 10px; 
-                            height: 10px; 
-                            border-radius: 50%; 
+                            position: absolute;
+                            left: 0;
+                            top: 5px;
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
                             background-color: ${colors.dot};
                             border: 2.5px solid #fff;
                             box-shadow: 0 0 0 2px ${colors.dot}40;
                             z-index: 2;
                         "></div>
-                        
+
                         <span style="font-size: 12px; color: #80868b; font-weight: 500; padding-left: 2px;">
                             ${item.log_date}
                         </span>
-                        
+
                         <div>
                             <span style="
-                                background-color: ${colors.bg}; 
-                                color: ${colors.text}; 
-                                padding: 5px 14px; 
-                                border-radius: 20px; 
-                                font-size: 13px; 
+                                background-color: ${colors.bg};
+                                color: ${colors.text};
+                                padding: 5px 14px;
+                                border-radius: 20px;
+                                font-size: 13px;
                                 font-weight: 600;
                                 display: inline-block;
                             ">
@@ -1439,28 +1451,28 @@ let breathing = false;
 
 function startRelaxMode() {
     let contentArea = document.getElementById('relax-content-area');
-    
+
     // Reka bentuk kawasan game (margin-top dibuang untuk jajaran kiri-kanan yang selari)
     let gameHtml = `
         <div id="bubble-game" style="
-            background: #ffffff; 
-            padding: 20px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
-            max-width: 400px; 
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            max-width: 400px;
             font-family: 'Segoe UI', Roboto, sans-serif;
             text-align: center;
             border: 1px solid #f0f0f0;
         ">
             <h4 style="margin: 0 0 5px 0; color: #ff8fa3;">Bubble Pop Anti-Stres 🫧</h4>
             <p style="margin: 0 0 15px 0; font-size: 13px; color: #80868b;">Tekan semua buih untuk tenangkan fikiran anda.</p>
-            
+
             <div style="
-                display: grid; 
-                grid-template-columns: repeat(5, 1fr); 
-                gap: 12px; 
-                padding: 15px; 
-                background: #fff5f6; 
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+                padding: 15px;
+                background: #fff5f6;
                 border-radius: 12px;
                 justify-items: center;
             ">
@@ -1470,11 +1482,11 @@ function startRelaxMode() {
     for (let i = 0; i < 25; i++) {
         gameHtml += `
             <div onclick="popBubble(this)" style="
-                width: 40px; 
-                height: 40px; 
-                background: radial-gradient(circle at 30% 30%, #fff, #ffb3c1); 
-                border-radius: 50%; 
-                cursor: pointer; 
+                width: 40px;
+                height: 40px;
+                background: radial-gradient(circle at 30% 30%, #fff, #ffb3c1);
+                border-radius: 50%;
+                cursor: pointer;
                 box-shadow: 0 4px 6px rgba(255, 143, 163, 0.2);
                 transition: all 0.1s ease;
             "></div>
@@ -1484,7 +1496,7 @@ function startRelaxMode() {
     // Tambah butang kawalan di bawah game
     gameHtml += `
             </div>
-            
+
             <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
                 <button onclick="closeRelaxMode()" style="background: none; border: none; color: #9aa0a6; cursor: pointer; font-size: 13px; text-decoration: underline;">
                     Close Game
@@ -1495,7 +1507,7 @@ function startRelaxMode() {
             </div>
         </div>
     `;
-    
+
     contentArea.innerHTML = gameHtml;
 }
 
@@ -1506,15 +1518,15 @@ function popBubble(bubble) {
     bubble.style.boxShadow = 'none';
     bubble.style.transform = 'scale(0.85)';
     bubble.style.pointerEvents = 'none'; // Supaya tak boleh klik lagi
-    
+
     // Efek audio ringkas (Standard browser pop)
     if (window.AudioContext || window.webkitAudioContext) {
         let ctx = new (window.AudioContext || window.webkitAudioContext)();
         let osc = ctx.createOscillator();
         let gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, ctx.currentTime); 
-        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08); 
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.08);
         gain.gain.setValueAtTime(0.1, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
         osc.connect(gain);
