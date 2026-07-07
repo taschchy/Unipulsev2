@@ -10,7 +10,7 @@ $user_id = $_SESSION['user_id'];
 $today = date('Y-m-d');
 
 // Database connection
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 
 if (!$conn) {
     die("Database connection failed: " . mysqli_connect_error());

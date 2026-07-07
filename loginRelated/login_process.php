@@ -2,7 +2,7 @@
 session_start();
 
 // 1. Connect to the XAMPP MySQL Database
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 
 if ($conn->connect_error) {
     die("Database connection failed: " . $conn->connect_error);

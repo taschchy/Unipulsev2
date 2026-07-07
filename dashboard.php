@@ -7,7 +7,7 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 $user_id = $_SESSION['user_id'];
 $stmt = $conn->prepare("SELECT full_name, major, year FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);

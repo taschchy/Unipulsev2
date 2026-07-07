@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

@@ -5,7 +5,7 @@ $password = $_POST['password'];
 $full_name = $_POST['full_name'];
 $major = $_POST['major'];
 $year = $_POST['year'];
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 
 $wellness_score = 2;
 

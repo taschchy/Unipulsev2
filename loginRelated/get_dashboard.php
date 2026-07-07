@@ -19,7 +19,7 @@ header('Content-Type: application/json');
 $user_id = $_SESSION['user_id'];
 $today = date('Y-m-d');
 
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 if ($conn->connect_error) {
     echo json_encode(["error" => "Database connection failed"]);
     exit();

@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 session_start();
 
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 
 if ($conn->connect_error) {
     die(json_encode([

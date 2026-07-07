@@ -18,7 +18,7 @@ if (!$input || !isset($input['type'])) {
     exit();
 }
 
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 if ($conn->connect_error) {
     echo json_encode(["status" => "error", "message" => "Database link severed"]);
     exit();

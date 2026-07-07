@@ -5,7 +5,7 @@ if(!isset($_SESSION['user_id'])){
     exit();
 }
 
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 
 $user_id = $_SESSION['user_id'];
 

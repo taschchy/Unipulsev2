@@ -11,7 +11,7 @@ $user_id = $_SESSION['user_id'];
 $today = date('Y-m-d');
 
 // 2. Connect to DB
-$conn = mysqli_connect("mysql", "root", "root", "unipulse");
+$conn = mysqli_connect("mysql", "unipulse", "secret", "unipulse");
 if ($conn->connect_error) {
     echo json_encode(['success' => false, 'error' => 'Database connection failed']);
     exit();
@@ -27,7 +27,7 @@ if (!empty($data['food_name']) && isset($data['calories'])) {
     // 4. Insert strictly using your table attributes: user_id, food_name, calories, log_date
     $stmt = $conn->prepare("INSERT INTO diet (user_id, food_name, calories, log_date) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("isis", $user_id, $food_name, $calories, $today);
-    
+
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
